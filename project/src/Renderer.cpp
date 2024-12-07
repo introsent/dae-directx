@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "Renderer.h"
+#include "Mesh3D.h"
 
 namespace dae {
 
@@ -13,6 +14,7 @@ namespace dae {
 		const HRESULT result = InitializeDirectX();
 		if (result == S_OK)
 		{
+			InitializeMesh();
 			m_IsInitialized = true;
 			std::cout << "DirectX is initialized and ready!\n";
 		}
@@ -24,20 +26,20 @@ namespace dae {
 
 	Renderer::~Renderer()
 	{
-		delete  m_pDevice;
+		CleanupDirectX();
+		delete	m_pDevice;
 		delete	m_pDeviceContext;
-		delete  m_pSwapChain;
-		delete 	m_pDepthStencilBuffer;
-		delete 	m_pDepthStencilView;
-		delete  m_pRenderTargetBuffer;
-		delete 	m_pRenderTargetView;
+		delete	m_pSwapChain;
+		delete	m_pDepthStencilBuffer;
+		delete	m_pDepthStencilView;
+		delete	m_pRenderTargetBuffer;
+		delete	m_pRenderTargetView;
 	}
 
 	void Renderer::Update(const Timer* pTimer)
 	{
 
 	}
-
 
 	void Renderer::Render() const
 	{
@@ -50,10 +52,27 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. Set pipeline + invoke draw calls (= RENDER)
+		m_pMesh->Render(m_pDeviceContext);
 
 		//3. Present backbuffer (SWAP)
 		m_pSwapChain->Present(0, 0);
 	}
+	
+	void Renderer::InitializeMesh()
+	{
+		//Create some data for our mesh
+		const std::vector<Vertex> vertices
+		{
+			{ Vector3(0.f, .5f, .5f),	ColorRGB(1.f,0.f,0.f)},
+			{ Vector3(.5f, -.5f, .5f),	ColorRGB(0.f,0.f,1.f)},
+			{ Vector3(-.5f, -.5f, .5f), ColorRGB(0.f,1.f,0.f)},
+		};
+		const std::vector<uint32_t> indices{ 0, 1, 2 };
+
+
+		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices);
+	}
+
 
 	HRESULT Renderer::InitializeDirectX()
 	{
@@ -99,6 +118,11 @@ namespace dae {
 		//Create Swapchain
 		result = pDxgiFactory->CreateSwapChain(m_pDevice, &swapChainDesc, &m_pSwapChain);
 		if (FAILED(result)) return result;
+		if (pDxgiFactory)
+		{
+			pDxgiFactory->Release();
+			pDxgiFactory = nullptr;
+		}
 
 		//==== 3. Create DepthStencil (DS) & DepthStencilView (DSV) ====
 		//Resource
@@ -150,7 +174,62 @@ namespace dae {
 		m_pDeviceContext->RSSetViewports(1, &viewport);
 		
 		//return S_FALSE;
-
 		return S_OK;
 	}
+
+	
+
+	void Renderer::CleanupDirectX()
+	{
+		// Clear state and flush the device context before releasing DeviceContext
+		if (m_pDeviceContext)
+		{
+			m_pDeviceContext->ClearState();
+			m_pDeviceContext->Flush();
+		}
+
+		// Release the resources in reverse order of creation
+		if (m_pRenderTargetView)
+		{
+			m_pRenderTargetView->Release();
+			m_pRenderTargetView = nullptr;
+		}
+
+		if (m_pRenderTargetBuffer)
+		{
+			m_pRenderTargetBuffer->Release();
+			m_pRenderTargetBuffer = nullptr;
+		}
+
+		if (m_pDepthStencilView)
+		{
+			m_pDepthStencilView->Release();
+			m_pDepthStencilView = nullptr;
+		}
+
+		if (m_pDepthStencilBuffer)
+		{
+			m_pDepthStencilBuffer->Release();
+			m_pDepthStencilBuffer = nullptr;
+		}
+
+		if (m_pSwapChain)
+		{
+			m_pSwapChain->Release();
+			m_pSwapChain = nullptr;
+		}
+
+		if (m_pDeviceContext)
+		{
+			m_pDeviceContext->Release();
+			m_pDeviceContext = nullptr;
+		}
+
+		if (m_pDevice)
+		{
+			m_pDevice->Release();
+			m_pDevice = nullptr;
+		}
+	}
+
 }

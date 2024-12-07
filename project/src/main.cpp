@@ -7,12 +7,6 @@
 #undef main
 #include "Renderer.h"
 
-//DirectX Headers
-#include <dxgi.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <d3dx11effect.h>
-
 using namespace dae;
 
 void ShutDown(SDL_Window* pWindow)

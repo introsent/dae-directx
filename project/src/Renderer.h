@@ -1,4 +1,6 @@
 #pragma once
+#include <memory>
+#include "Mesh3D.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -17,6 +19,7 @@ namespace dae
 		Renderer& operator=(Renderer&&) noexcept = delete;
 
 		void Update(const Timer* pTimer);
+		void CleanupDirectX();
 		void Render() const;
 
 	private:
@@ -29,13 +32,18 @@ namespace dae
 
 		//DIRECTX
 		HRESULT InitializeDirectX();
-		ID3D11Device* m_pDevice;
-		ID3D11DeviceContext* m_pDeviceContext{};
-		IDXGISwapChain* m_pSwapChain{};
-		ID3D11Texture2D* m_pDepthStencilBuffer{};
+		
+		ID3D11Device*			m_pDevice;
+		ID3D11DeviceContext*	m_pDeviceContext{};
+		IDXGISwapChain*			m_pSwapChain{};
+		ID3D11Texture2D*		m_pDepthStencilBuffer{};
 		ID3D11DepthStencilView* m_pDepthStencilView{};
-		ID3D11Resource* m_pRenderTargetBuffer{};
+		ID3D11Resource*			m_pRenderTargetBuffer{};
 		ID3D11RenderTargetView* m_pRenderTargetView{};
-		//...
+		
+
+		//MESH
+		std::unique_ptr<Mesh3D> m_pMesh;
+		void InitializeMesh();
 	};
 }
