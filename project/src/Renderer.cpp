@@ -14,8 +14,12 @@ namespace dae {
 		const HRESULT result = InitializeDirectX();
 		if (result == S_OK)
 		{
-			InitializeMesh();
 			m_IsInitialized = true;
+			
+			InitializeMesh();
+			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -10.f }, 45.f, m_Width, m_Height);
+			
+
 			std::cout << "DirectX is initialized and ready!\n";
 		}
 		else
@@ -38,7 +42,7 @@ namespace dae {
 
 	void Renderer::Update(const Timer* pTimer)
 	{
-
+		m_pCamera.get()->Update(pTimer);
 	}
 
 	void Renderer::Render() const
@@ -52,7 +56,7 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. Set pipeline + invoke draw calls (= RENDER)
-		m_pMesh->Render(m_pDeviceContext);
+		m_pMesh->Render(m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
 
 		//3. Present backbuffer (SWAP)
 		m_pSwapChain->Present(0, 0);
@@ -63,12 +67,11 @@ namespace dae {
 		//Create some data for our mesh
 		const std::vector<Vertex> vertices
 		{
-			{ Vector3(0.f, .5f, .5f),	ColorRGB(1.f,0.f,0.f)},
-			{ Vector3(.5f, -.5f, .5f),	ColorRGB(0.f,0.f,1.f)},
-			{ Vector3(-.5f, -.5f, .5f), ColorRGB(0.f,1.f,0.f)},
+			{ Vector3(0.f, 3.f, 2.f),	ColorRGB(1.f,0.f,0.f)},
+			{ Vector3(3.f, -3.f, 2.f),	ColorRGB(0.f,0.f,1.f)},
+			{ Vector3(-3.f, -3.f, 2.f), ColorRGB(0.f,1.f,0.f)},
 		};
 		const std::vector<uint32_t> indices{ 0, 1, 2 };
-
 
 		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices);
 	}

@@ -1,4 +1,9 @@
 //------------------------------------------------
+// Global variables
+//------------------------------------------------
+float4x4 gWorldViewProjectionMatrix : WorldViewProjection;
+
+//------------------------------------------------
 // Input/Output Struct
 //------------------------------------------------
 struct VS_INPUT
@@ -19,7 +24,7 @@ struct VS_OUTPUT
 VS_OUTPUT VS(VS_INPUT input)
 {
 	VS_OUTPUT output = (VS_OUTPUT)0;
-	output.Position = float4(input.Position, 1.0f);
+    output.Position = mul(float4(input.Position, 1.0f), gWorldViewProjectionMatrix);
 	output.Color = input.Color;
 	return output;
 }
@@ -44,3 +49,6 @@ technique11 DefaultTechnique
 		SetPixelShader(CompileShader(ps_5_0, PS()));
 	}
 }
+
+
+

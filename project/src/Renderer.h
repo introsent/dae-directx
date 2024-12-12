@@ -1,6 +1,7 @@
 #pragma once
 #include <memory>
 #include "Mesh3D.h"
+#include "Camera.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -44,6 +45,7 @@ namespace dae
 
 		//MESH
 		std::unique_ptr<Mesh3D> m_pMesh;
+		std::unique_ptr<Camera> m_pCamera;
 		void InitializeMesh();
 	};
 }

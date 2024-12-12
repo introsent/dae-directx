@@ -23,7 +23,7 @@ public:
 	Mesh3D(Mesh3D&& other) = delete;
 	Mesh3D& operator=(Mesh3D&& rhs) = delete;
 
-	void Render(ID3D11DeviceContext* pDeviceContext) const;
+	void Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const;
 
 private:
 	uint32_t				m_NumIndices{};

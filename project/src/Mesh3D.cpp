@@ -1,4 +1,5 @@
 #include "Mesh3D.h"
+#include "Camera.h"
 
 Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
@@ -85,8 +86,8 @@ Mesh3D::~Mesh3D()
 	delete m_pIndexBuffer;
 }
 
-void Mesh3D::Render(ID3D11DeviceContext* pDeviceContext) const
-{
+void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const
+{	
 	//1. Set primitive topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -101,7 +102,10 @@ void Mesh3D::Render(ID3D11DeviceContext* pDeviceContext) const
 	//4. Set index buffer
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-	//5. Draw
+	//5. Set World View Projection Matrix
+	m_pEffect->GetWorldViewProjectionMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldViewProjectionMatrix));
+
+	//6. Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
 	m_pEffect->GetTechnique()->GetDesc(&techniqueDesc);
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
