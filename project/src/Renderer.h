@@ -48,6 +48,7 @@ namespace dae
 		
 
 		//MESH
+		Matrix m_WorldMatrix{};
 		std::unique_ptr<Mesh3D> m_pMesh;
 		std::unique_ptr<Camera> m_pCamera;
 		void InitializeMesh();

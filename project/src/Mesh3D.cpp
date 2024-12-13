@@ -113,6 +113,7 @@ Mesh3D::~Mesh3D()
 
 }
 
+
 void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const
 {	
 	//1. Set primitive topology
