@@ -1,12 +1,14 @@
 #include "Mesh3D.h"
 #include "Camera.h"
+#include "Texture.h"
+#include <memory.h>
 
 Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
 {
 	m_pEffect = new Effect{ pDevice, L"resources/PosCol3D.fx" };
 
 	//1. Create Vertex Layout
-	static constexpr uint32_t numElements{ 2 };
+	static constexpr uint32_t numElements{ 3 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -19,10 +21,15 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 	vertexDesc[1].AlignedByteOffset = 12;
 	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
+	vertexDesc[2].SemanticName = "TEXCOORD";
+	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
+	vertexDesc[2].AlignedByteOffset = 24;
+	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+
+
 	//2. Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
-	m_pEffect->GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc);
-
+	m_pEffect->GetTechniquePoint()->GetPassByIndex(0)->GetDesc(&passDesc);
 	HRESULT result{ pDevice->CreateInputLayout
 		(
 			vertexDesc,
@@ -30,6 +37,26 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 			passDesc.pIAInputSignature,
 			passDesc.IAInputSignatureSize,
 			&m_pVertexLayout )};
+	if (FAILED(result)) return;
+
+	m_pEffect->GetTechniqueLinear()->GetPassByIndex(0)->GetDesc(&passDesc);
+	result = pDevice->CreateInputLayout
+		(
+			vertexDesc,
+			numElements,
+			passDesc.pIAInputSignature,
+			passDesc.IAInputSignatureSize,
+			&m_pVertexLayout);
+	if (FAILED(result)) return;
+
+	m_pEffect->GetTechniqueAnisotropic()->GetPassByIndex(0)->GetDesc(&passDesc);
+	result = pDevice->CreateInputLayout
+		(
+			vertexDesc,
+			numElements,
+			passDesc.pIAInputSignature,
+			passDesc.IAInputSignatureSize,
+			&m_pVertexLayout);
 	if (FAILED(result)) return;
 
 	//3. Create vertex buffer
@@ -57,6 +84,9 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 
 	result = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
+
+	std::unique_ptr<Texture> pTexture = Texture::LoadFromFile(pDevice, "resources/uv_grid_2.png");
+	m_pEffect->SetDiffuseMap(pTexture.get());
 }
 
 Mesh3D::~Mesh3D()
@@ -107,10 +137,33 @@ void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContex
 
 	//6. Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
-	m_pEffect->GetTechnique()->GetDesc(&techniqueDesc);
-	for (UINT p{}; p < techniqueDesc.Passes; ++p)
+	switch (m_FilteringTechnique)
 	{
-		m_pEffect->GetTechnique()->GetPassByIndex(p)->Apply(0, pDeviceContext);
-		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+	case FilteringTechnique::Point:
+		m_pEffect->GetTechniquePoint()->GetDesc(&techniqueDesc);
+		for (UINT p{}; p < techniqueDesc.Passes; ++p)
+		{
+			m_pEffect->GetTechniquePoint()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+		}
+		break;
+	case FilteringTechnique::Linear:
+		m_pEffect->GetTechniqueLinear()->GetDesc(&techniqueDesc);
+		for (UINT p{}; p < techniqueDesc.Passes; ++p)
+		{
+			m_pEffect->GetTechniqueLinear()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+		}
+		break;
+	case FilteringTechnique::Anisotropic:
+		m_pEffect->GetTechniqueAnisotropic()->GetDesc(&techniqueDesc);
+		for (UINT p{}; p < techniqueDesc.Passes; ++p)
+		{
+			m_pEffect->GetTechniqueAnisotropic()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+		}
+		break;
+
 	}
+
 }

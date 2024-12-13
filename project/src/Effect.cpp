@@ -1,5 +1,6 @@
 #include "Effect.h"
 #include <sstream>
+using namespace dae;
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
@@ -11,19 +12,68 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 		std::wcout << L"Technique not valid\n";
 	}
 
+	m_pTechniquePoint = m_pEffect->GetTechniqueByName("PointTechnique");
+	if (!m_pTechniquePoint->IsValid())
+	{
+		std::wcout << L"Technique not valid\n"; 
+	}
+
+	m_pTechniqueLinear = m_pEffect->GetTechniqueByName("LinearTechnique");
+	if (!m_pTechniqueLinear->IsValid())
+	{
+		std::wcout << L"Technique not valid\n";
+	}
+
+	m_pTechniqueAnisotropic = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
+	if (!m_pTechniqueAnisotropic->IsValid())
+	{
+		std::wcout << L"Technique not valid\n";
+	}
+
 	m_pMatWorldViewProjVariable = m_pEffect->GetVariableByName("gWorldViewProjectionMatrix")->AsMatrix();
 	if (!m_pMatWorldViewProjVariable->IsValid())
 	{
 		std::wcout << L"m_pMatWorldViewProjVariable not valid\n";
 	}
+
+	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
+	if (!m_pDiffuseMapVariable->IsValid())
+	{
+		std::wcout << L"m_pDiffuseMapVariable not valid!\n";
+	}
 }
 
 Effect::~Effect()
 {
+	if (m_pDiffuseMapVariable)
+	{
+		m_pDiffuseMapVariable->Release();
+		m_pDiffuseMapVariable = nullptr;
+	}
+
+
 	if (m_pMatWorldViewProjVariable)
 	{
 		m_pMatWorldViewProjVariable->Release();
 		m_pMatWorldViewProjVariable = nullptr;
+	}
+
+	if (m_pTechniqueAnisotropic)
+	{
+		m_pTechniqueAnisotropic->Release();
+		m_pTechniqueAnisotropic = nullptr;
+	}
+
+	if (m_pTechniqueLinear)
+	{
+		m_pTechniqueLinear->Release();
+		m_pTechniqueLinear = nullptr;
+	}
+
+	if (m_pTechniquePoint)
+	{
+		m_pTechniquePoint->Release();
+		m_pTechniquePoint = nullptr;
 	}
 
 	if (m_pTechnique)
@@ -47,6 +97,28 @@ ID3DX11Effect* Effect::GetEffect() const
 ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
 	return m_pTechnique;
+}
+
+ID3DX11EffectTechnique* Effect::GetTechniquePoint() const
+{
+	return m_pTechniquePoint;
+}
+
+ID3DX11EffectTechnique* Effect::GetTechniqueLinear() const
+{
+	return m_pTechniqueLinear;
+}
+
+ID3DX11EffectTechnique* Effect::GetTechniqueAnisotropic() const
+{
+	return m_pTechniqueAnisotropic;
+}
+
+void Effect::SetDiffuseMap(Texture* pDiffuseTexture)
+{
+	if (m_pDiffuseMapVariable) {
+		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetShaderResourceView());
+	}
 }
 
 ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjectionMatrix() const

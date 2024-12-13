@@ -10,6 +10,7 @@ struct Vertex
 {
 	Vector3 position;
 	ColorRGB color;
+	Vector2 uv;
 };
 
 class Mesh3D final
@@ -25,9 +26,28 @@ public:
 
 	void Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const;
 
+	enum FilteringTechnique
+	{
+		Point,
+		Linear,
+		Anisotropic
+	};
+
+	void SetFilteringTechnique(FilteringTechnique filteringTechnique)
+	{
+		m_FilteringTechnique = filteringTechnique;
+	}
+
+	FilteringTechnique GetFilteringTechnique()
+	{
+		return m_FilteringTechnique;
+	}
+
+	
 private:
 	uint32_t				m_NumIndices{};
 	Effect*					m_pEffect;
+	FilteringTechnique      m_FilteringTechnique{ FilteringTechnique::Point };
 
 	ID3D11Buffer*			m_pVertexBuffer{};
 	ID3D11InputLayout*		m_pVertexLayout{};

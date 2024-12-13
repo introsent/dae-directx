@@ -67,11 +67,19 @@ namespace dae {
 		//Create some data for our mesh
 		const std::vector<Vertex> vertices
 		{
-			{ Vector3(0.f, 3.f, 2.f),	ColorRGB(1.f,0.f,0.f)},
-			{ Vector3(3.f, -3.f, 2.f),	ColorRGB(0.f,0.f,1.f)},
-			{ Vector3(-3.f, -3.f, 2.f), ColorRGB(0.f,1.f,0.f)},
+			{ { -3, 3, -2 }, {}, {0.f, 0.f}},
+			{	{ 0, 3, -2 }, {}, {.5f, 0.f}},
+			{ { 3, 3, -2 }, {}, {1.f, 0.f}},
+			{ { -3, 0, -2 }, {}, {0.f, .5f}},
+			{ { 0, 0, -2 }, {}, {.5f, .5f}},
+			{ { 3, 0, -2 }, {}, {1.f, .5f}},
+			{ { -3, -3, -2 }, {}, {0.f, 1.f}},
+			{ { 0, -3, -2 }, {}, {.5f, 1.f}},
+			{ { 3, -3, -2 }, {}, {1.f, 1.f}}
 		};
-		const std::vector<uint32_t> indices{ 0, 1, 2 };
+		const std::vector<uint32_t> indices{ 3, 0, 1,   1, 4, 3,   4, 1, 2,
+											 2, 5, 4,   6, 3, 4,   4, 7, 6,
+											 7, 4, 5,   5, 8, 7 };
 
 		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices);
 	}
