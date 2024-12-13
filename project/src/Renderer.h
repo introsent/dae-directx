@@ -23,6 +23,8 @@ namespace dae
 		void CleanupDirectX();
 		void Render() const;
 
+		void ChangeFilteringTechnique();
+
 	private:
 		SDL_Window* m_pWindow{};
 
@@ -31,6 +33,8 @@ namespace dae
 
 		bool m_IsInitialized{ false };
 
+
+		void OnDeviceLost();
 		//DIRECTX
 		HRESULT InitializeDirectX();
 		

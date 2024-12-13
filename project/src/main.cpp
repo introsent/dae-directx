@@ -13,7 +13,14 @@ void ShutDown(SDL_Window* pWindow)
 {
 	SDL_DestroyWindow(pWindow);
 	SDL_Quit();
+
+
+
+
 }
+
+ID3D11Debug* d3d11Debug;
+
 
 int main(int argc, char* args[])
 {
@@ -28,7 +35,7 @@ int main(int argc, char* args[])
 	const uint32_t height = 480;
 
 	SDL_Window* pWindow = SDL_CreateWindow(
-		"DirectX - ***Ivans Minajevs/2GD11***",
+		"DirectX - Ivans Minajevs / 2GD11",
 		SDL_WINDOWPOS_UNDEFINED,
 		SDL_WINDOWPOS_UNDEFINED,
 		width, height, 0);
@@ -57,7 +64,10 @@ int main(int argc, char* args[])
 				break;
 			case SDL_KEYUP:
 				//Test for a key
-				//if (e.key.keysym.scancode == SDL_SCANCODE_X)
+				if (e.key.keysym.scancode == SDL_SCANCODE_F2)
+				{
+					pRenderer->ChangeFilteringTechnique();
+				}
 				break;
 			default: ;
 			}
@@ -82,6 +92,15 @@ int main(int argc, char* args[])
 
 	//Shutdown "framework"
 	delete pRenderer;
+
+	d3d11Debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
+
+	if (d3d11Debug)
+	{
+		d3d11Debug->Release();
+		d3d11Debug = nullptr;
+	}
+
 	delete pTimer;
 
 	ShutDown(pWindow);

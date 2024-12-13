@@ -91,8 +91,6 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 
 Mesh3D::~Mesh3D()
 {
-	delete m_pEffect;
-
 	if (m_pIndexBuffer)
 	{
 		m_pIndexBuffer->Release();
@@ -111,9 +109,8 @@ Mesh3D::~Mesh3D()
 		m_pVertexLayout = nullptr;
 	}
 
-	delete m_pVertexBuffer;
-	delete m_pVertexLayout;
-	delete m_pIndexBuffer;
+	delete m_pEffect;
+
 }
 
 void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const
@@ -143,24 +140,30 @@ void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContex
 		m_pEffect->GetTechniquePoint()->GetDesc(&techniqueDesc);
 		for (UINT p{}; p < techniqueDesc.Passes; ++p)
 		{
-			m_pEffect->GetTechniquePoint()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+			auto passIndexPoint = m_pEffect->GetTechniquePoint()->GetPassByIndex(p);
+			passIndexPoint->Apply(0, pDeviceContext);
 			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+			if (passIndexPoint) passIndexPoint->Release();
 		}
 		break;
 	case FilteringTechnique::Linear:
 		m_pEffect->GetTechniqueLinear()->GetDesc(&techniqueDesc);
 		for (UINT p{}; p < techniqueDesc.Passes; ++p)
 		{
-			m_pEffect->GetTechniqueLinear()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+			auto passIndexLinear = m_pEffect->GetTechniqueLinear()->GetPassByIndex(p);
+			passIndexLinear->Apply(0, pDeviceContext);
 			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+			if (passIndexLinear) passIndexLinear->Release();
 		}
 		break;
 	case FilteringTechnique::Anisotropic:
 		m_pEffect->GetTechniqueAnisotropic()->GetDesc(&techniqueDesc);
 		for (UINT p{}; p < techniqueDesc.Passes; ++p)
 		{
-			m_pEffect->GetTechniqueAnisotropic()->GetPassByIndex(p)->Apply(0, pDeviceContext);
+			auto passIndexAnisotropic = m_pEffect->GetTechniqueAnisotropic()->GetPassByIndex(p);
+			passIndexAnisotropic->Apply(0, pDeviceContext);
 			pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
+			if (passIndexAnisotropic) passIndexAnisotropic->Release();
 		}
 		break;
 

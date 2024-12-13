@@ -2,6 +2,7 @@
 #include "Renderer.h"
 #include "Mesh3D.h"
 
+extern ID3D11Debug* d3d11Debug;
 namespace dae {
 
 	Renderer::Renderer(SDL_Window* pWindow) :
@@ -31,6 +32,7 @@ namespace dae {
 	Renderer::~Renderer()
 	{
 		CleanupDirectX();
+
 		delete	m_pDevice;
 		delete	m_pDeviceContext;
 		delete	m_pSwapChain;
@@ -38,7 +40,9 @@ namespace dae {
 		delete	m_pDepthStencilView;
 		delete	m_pRenderTargetBuffer;
 		delete	m_pRenderTargetView;
+
 	}
+
 
 	void Renderer::Update(const Timer* pTimer)
 	{
@@ -56,10 +60,43 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. Set pipeline + invoke draw calls (= RENDER)
-		m_pMesh->Render(m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
+		m_pMesh.get()->Render(m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
 
 		//3. Present backbuffer (SWAP)
 		m_pSwapChain->Present(0, 0);
+	}
+
+	void Renderer::ChangeFilteringTechnique()
+	{
+		switch (m_pMesh->GetFilteringTechnique())
+		{
+		
+		case Mesh3D::FilteringTechnique::Point:
+			std::cout << "FILTERING TECHNIQUE: Linear" << std::endl;
+			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Linear);
+			break;
+		case Mesh3D::FilteringTechnique::Linear:
+			std::cout << "FILTERING TECHNIQUE: Anisotropic" << std::endl;
+			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Anisotropic);
+			break;
+		case Mesh3D::FilteringTechnique::Anisotropic:
+			std::cout << "FILTERING TECHNIQUE: Point" << std::endl;
+			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Point);
+			break;
+		}
+
+	}
+
+	void Renderer::OnDeviceLost()
+	{
+		// Release all resources tied to the device
+		CleanupDirectX();
+
+		// Recreate device and swap chain
+		InitializeDirectX();
+
+		// Recreate resources
+		InitializeMesh();
 	}
 	
 	void Renderer::InitializeMesh()
@@ -94,9 +131,11 @@ namespace dae {
 			createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 		#endif
 
+
 		HRESULT result = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, &featureLevel,
 						1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 		if (FAILED(result)) return result;
+		m_pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3d11Debug));
 
 		//Create DXGI Factory
 		IDXGIFactory1* pDxgiFactory{};
