@@ -85,7 +85,7 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 	result = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
 
-	std::unique_ptr<Texture> pTexture = Texture::LoadFromFile(pDevice, "resources/uv_grid_2.png");
+	std::unique_ptr<Texture> pTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_diffuse.png");
 	m_pEffect->SetDiffuseMap(pTexture.get());
 }
 

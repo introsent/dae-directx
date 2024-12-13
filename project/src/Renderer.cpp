@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "Renderer.h"
 #include "Mesh3D.h"
+#include "Utils.h"
 
 extern ID3D11Debug* d3d11Debug;
 namespace dae {
@@ -18,7 +19,7 @@ namespace dae {
 			m_IsInitialized = true;
 			
 			InitializeMesh();
-			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -10.f }, 45.f, m_Width, m_Height);
+			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -50.f }, 45.f, m_Width, m_Height);
 			
 
 			std::cout << "DirectX is initialized and ready!\n";
@@ -47,6 +48,8 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_pCamera.get()->Update(pTimer);
+
+		//m_pMesh->Rotate(PI / 2);
 	}
 
 	void Renderer::Render() const
@@ -84,7 +87,6 @@ namespace dae {
 			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Point);
 			break;
 		}
-
 	}
 
 	void Renderer::OnDeviceLost()
@@ -102,21 +104,26 @@ namespace dae {
 	void Renderer::InitializeMesh()
 	{
 		//Create some data for our mesh
-		const std::vector<Vertex> vertices
-		{
-			{ { -3, 3, -2 }, {}, {0.f, 0.f}},
-			{	{ 0, 3, -2 }, {}, {.5f, 0.f}},
-			{ { 3, 3, -2 }, {}, {1.f, 0.f}},
-			{ { -3, 0, -2 }, {}, {0.f, .5f}},
-			{ { 0, 0, -2 }, {}, {.5f, .5f}},
-			{ { 3, 0, -2 }, {}, {1.f, .5f}},
-			{ { -3, -3, -2 }, {}, {0.f, 1.f}},
-			{ { 0, -3, -2 }, {}, {.5f, 1.f}},
-			{ { 3, -3, -2 }, {}, {1.f, 1.f}}
-		};
-		const std::vector<uint32_t> indices{ 3, 0, 1,   1, 4, 3,   4, 1, 2,
-											 2, 5, 4,   6, 3, 4,   4, 7, 6,
-											 7, 4, 5,   5, 8, 7 };
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
+		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
+
+		//const std::vector<Vertex> vertices
+		//{
+		//	{ { -3, 3, -2 }, {}, {0.f, 0.f}},
+		//	{	{ 0, 3, -2 }, {}, {.5f, 0.f}},
+		//	{ { 3, 3, -2 }, {}, {1.f, 0.f}},
+		//	{ { -3, 0, -2 }, {}, {0.f, .5f}},
+		//	{ { 0, 0, -2 }, {}, {.5f, .5f}},
+		//	{ { 3, 0, -2 }, {}, {1.f, .5f}},
+		//	{ { -3, -3, -2 }, {}, {0.f, 1.f}},
+		//	{ { 0, -3, -2 }, {}, {.5f, 1.f}},
+		//	{ { 3, -3, -2 }, {}, {1.f, 1.f}}
+		//};
+		//const std::vector<uint32_t> indices{ 3, 0, 1,   1, 4, 3,   4, 1, 2,
+		//									 2, 5, 4,   6, 3, 4,   4, 7, 6,
+		//									 7, 4, 5,   5, 8, 7 };
 
 		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices);
 	}
