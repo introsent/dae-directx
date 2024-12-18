@@ -6,12 +6,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
 	m_pEffect = LoadEffect(pDevice, assetFile);
 
-	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
-	if (!m_pTechnique->IsValid())
-	{
-		std::wcout << L"Technique not valid\n";
-	}
-
 	m_pTechniquePoint = m_pEffect->GetTechniqueByName("PointTechnique");
 	if (!m_pTechniquePoint->IsValid())
 	{
@@ -35,6 +29,9 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	{
 		std::wcout << L"m_pMatWorldViewProjVariable not valid\n";
 	}
+
+	//auto sam = m_pEffect->GetVariableByName("gWorldViewProjectionMatrix")->AsSampler();
+	//sam->SetSampler(
 
 	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVariable->IsValid())
@@ -76,11 +73,11 @@ Effect::~Effect()
 		m_pTechniquePoint = nullptr;
 	}
 
-	if (m_pTechnique)
-	{
-		m_pTechnique->Release();
-		m_pTechnique = nullptr;
-	}
+	//if (m_pTechnique)
+	//{
+	//	m_pTechnique->Release();
+	//	m_pTechnique = nullptr;
+	//}
 
 	if (m_pEffect)
 	{
@@ -92,11 +89,6 @@ Effect::~Effect()
 ID3DX11Effect* Effect::GetEffect() const
 {
 	return m_pEffect;
-}
-
-ID3DX11EffectTechnique* Effect::GetTechnique() const
-{
-	return m_pTechnique;
 }
 
 ID3DX11EffectTechnique* Effect::GetTechniquePoint() const
@@ -172,6 +164,8 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& ass
 			return nullptr;
 		}
 	}
+	pErrorBlob->Release();
+
 
 	return pEffect;
 }

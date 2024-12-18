@@ -13,7 +13,7 @@ public:
 	Effect& operator=(Effect&& rhs) = delete;
 
 	ID3DX11Effect* GetEffect() const;
-	ID3DX11EffectTechnique* GetTechnique() const;
+	//ID3DX11EffectTechnique* GetTechnique() const;
 
 	ID3DX11EffectTechnique* GetTechniquePoint() const;
 	ID3DX11EffectTechnique* GetTechniqueLinear() const;
@@ -24,7 +24,7 @@ public:
 	ID3DX11EffectMatrixVariable* GetWorldViewProjectionMatrix() const;
 private:
 	ID3DX11Effect* m_pEffect;
-	ID3DX11EffectTechnique* m_pTechnique;
+	//ID3DX11EffectTechnique* m_pTechnique;
 	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable;
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
 

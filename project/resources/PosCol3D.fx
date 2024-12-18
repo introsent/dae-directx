@@ -3,6 +3,7 @@
 //------------------------------------------------
 float4x4 gWorldViewProjectionMatrix : WorldViewProjection;
 Texture2D gDiffuseMap : DiffuseMap;
+sampler2D gSampler;
 
 //------------------------------------------------
 // Input/Output Struct
@@ -55,10 +56,10 @@ VS_OUTPUT VS(VS_INPUT input)
 //------------------------------------------------
 // Pixel Shader
 //------------------------------------------------
-float4 PS(VS_OUTPUT input) : SV_TARGET
-{
-	return float4(input.Color, 1.0f);
-}
+//float4 PS(VS_OUTPUT input) : SV_TARGET
+//{
+//	return float4(input.Color, 1.0f);
+//}
 
 float4 PSPoint(VS_OUTPUT input) : SV_TARGET
 {
@@ -76,15 +77,15 @@ float4 PSAnisotropic(VS_OUTPUT input) : SV_TARGET
 //------------------------------------------------
 // Technique
 //------------------------------------------------
-technique11 DefaultTechnique
-{
-	pass P0
-	{
-		SetVertexShader(CompileShader(vs_5_0, VS()));
-		SetGeometryShader(NULL);
-		SetPixelShader(CompileShader(ps_5_0, PS()));
-	}
-}
+//technique11 DefaultTechnique
+//{
+//	pass P0
+//	{
+//		SetVertexShader(CompileShader(vs_5_0, VS()));
+//		SetGeometryShader(NULL);
+//		SetPixelShader(CompileShader(ps_5_0, PS()));
+//	}
+//}
 
 technique11 PointTechnique
 {

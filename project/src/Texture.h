@@ -13,6 +13,7 @@ class Texture
 		ID3D11ShaderResourceView* GetShaderResourceView() const;
 
 	private:
+
 		ID3D11Texture2D* m_pResource;
 		ID3D11ShaderResourceView* m_pShaderResourceView;
 };

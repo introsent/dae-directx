@@ -34,6 +34,7 @@ namespace dae {
 	{
 		CleanupDirectX();
 
+		//delete  m_pMesh;
 		delete	m_pDevice;
 		delete	m_pDeviceContext;
 		delete	m_pSwapChain;
@@ -238,24 +239,13 @@ namespace dae {
 	void Renderer::CleanupDirectX()
 	{
 		// Clear state and flush the device context before releasing DeviceContext
-		if (m_pDeviceContext)
-		{
-			m_pDeviceContext->ClearState();
-			m_pDeviceContext->Flush();
-		}
+		//if (m_pDeviceContext)
+		//{
+		//	
+		//}
 
 		// Release the resources in reverse order of creation
-		if (m_pRenderTargetView)
-		{
-			m_pRenderTargetView->Release();
-			m_pRenderTargetView = nullptr;
-		}
-
-		if (m_pRenderTargetBuffer)
-		{
-			m_pRenderTargetBuffer->Release();
-			m_pRenderTargetBuffer = nullptr;
-		}
+		
 
 		if (m_pDepthStencilView)
 		{
@@ -269,6 +259,18 @@ namespace dae {
 			m_pDepthStencilBuffer = nullptr;
 		}
 
+		if (m_pRenderTargetView)
+		{
+			m_pRenderTargetView->Release();
+			m_pRenderTargetView = nullptr;
+		}
+
+		if (m_pRenderTargetBuffer)
+		{
+			m_pRenderTargetBuffer->Release();
+			m_pRenderTargetBuffer = nullptr;
+		}
+
 		if (m_pSwapChain)
 		{
 			m_pSwapChain->Release();
@@ -277,6 +279,8 @@ namespace dae {
 
 		if (m_pDeviceContext)
 		{
+			m_pDeviceContext->ClearState();
+			m_pDeviceContext->Flush();
 			m_pDeviceContext->Release();
 			m_pDeviceContext = nullptr;
 		}

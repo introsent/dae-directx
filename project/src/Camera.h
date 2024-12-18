@@ -103,7 +103,7 @@ namespace dae
 
 			if (leftButtonPressed)
 			{
-				origin += forward * mouseY * deltaTime * velocity.z;
+				origin += forward * mouseY * velocity.z * 0.01f;
 				totalPitch += mouseX * rotationVelocity;
 			}
 			if (rightButtonPressed)
