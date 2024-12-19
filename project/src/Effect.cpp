@@ -1,25 +1,69 @@
 #include "Effect.h"
 #include <sstream>
+#include "Mesh3D.h"
 using namespace dae;
 
 Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
 	m_pEffect = LoadEffect(pDevice, assetFile);
 
-	m_pTechniquePoint = m_pEffect->GetTechniqueByName("PointTechnique");
-	if (!m_pTechniquePoint->IsValid())
+	m_EffectSamplerVariable = m_pEffect->GetVariableByName("gSamplerState")->AsSampler();
+	if (!m_EffectSamplerVariable->IsValid())
 	{
-		std::wcout << L"Technique not valid\n"; 
+		std::wcout << L"Effect sampler veriable is not valid\n";
+		return;
+	}
+	
+	// Point sampler
+	D3D11_SAMPLER_DESC pointDesc = {};
+	pointDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+	pointDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	pointDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	pointDesc.MinLOD = 0;
+	pointDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	HRESULT hr = pDevice->CreateSamplerState(&pointDesc, &m_pSamplerPoint);
+	if (FAILED(hr))
+	{
+		std::wcout << L"Point Sampling state not valid\n";
 	}
 
-	m_pTechniqueLinear = m_pEffect->GetTechniqueByName("LinearTechnique");
-	if (!m_pTechniqueLinear->IsValid())
+	// Linear sampler
+	D3D11_SAMPLER_DESC linearDesc = {};
+	linearDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	linearDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	linearDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	linearDesc.MinLOD = 0;
+	linearDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	hr = pDevice->CreateSamplerState(&linearDesc, &m_pSamplerLinear);
+	if (FAILED(hr))
 	{
-		std::wcout << L"Technique not valid\n";
+		std::wcout << L"Linear Sampling state not valid\n";
 	}
 
-	m_pTechniqueAnisotropic = m_pEffect->GetTechniqueByName("AnisotropicTechnique");
-	if (!m_pTechniqueAnisotropic->IsValid())
+	// Anisotropic sampler
+	D3D11_SAMPLER_DESC anisotropicDesc = {};
+	anisotropicDesc.Filter = D3D11_FILTER_ANISOTROPIC;
+	anisotropicDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	anisotropicDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
+	anisotropicDesc.MinLOD = 0;
+	anisotropicDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	anisotropicDesc.MaxAnisotropy = 16; // Maximum anisotropy level
+	hr = pDevice->CreateSamplerState(&anisotropicDesc, &m_pSamplerAnisotropic);
+	if (FAILED(hr))
+	{
+		std::wcout << L"Anisotropic Sampling state not valid\n";
+	}
+
+	m_EffectSamplerVariable->SetSampler(0, m_pSamplerPoint);
+
+	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
+	if (!m_pTechnique->IsValid())
 	{
 		std::wcout << L"Technique not valid\n";
 	}
@@ -29,9 +73,6 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 	{
 		std::wcout << L"m_pMatWorldViewProjVariable not valid\n";
 	}
-
-	//auto sam = m_pEffect->GetVariableByName("gWorldViewProjectionMatrix")->AsSampler();
-	//sam->SetSampler(
 
 	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVariable->IsValid())
@@ -47,37 +88,43 @@ Effect::~Effect()
 		m_pDiffuseMapVariable->Release();
 		m_pDiffuseMapVariable = nullptr;
 	}
-
-
+	
+	
 	if (m_pMatWorldViewProjVariable)
 	{
 		m_pMatWorldViewProjVariable->Release();
 		m_pMatWorldViewProjVariable = nullptr;
 	}
 
-	if (m_pTechniqueAnisotropic)
+	if (m_pTechnique)
 	{
-		m_pTechniqueAnisotropic->Release();
-		m_pTechniqueAnisotropic = nullptr;
+		m_pTechnique->Release();
+		m_pTechnique = nullptr;
+	}
+	
+	if (m_pSamplerAnisotropic)
+	{
+		m_pSamplerAnisotropic->Release();
+		m_pSamplerAnisotropic = nullptr;
 	}
 
-	if (m_pTechniqueLinear)
+	if (m_pSamplerLinear)
 	{
-		m_pTechniqueLinear->Release();
-		m_pTechniqueLinear = nullptr;
+		m_pSamplerLinear->Release();
+		m_pSamplerLinear = nullptr;
+	}
+	
+	if (m_pSamplerPoint)
+	{
+		m_pSamplerPoint->Release();
+		m_pSamplerPoint = nullptr;
 	}
 
-	if (m_pTechniquePoint)
+	if (m_EffectSamplerVariable)
 	{
-		m_pTechniquePoint->Release();
-		m_pTechniquePoint = nullptr;
+		m_EffectSamplerVariable->Release();
+		m_EffectSamplerVariable = nullptr;
 	}
-
-	//if (m_pTechnique)
-	//{
-	//	m_pTechnique->Release();
-	//	m_pTechnique = nullptr;
-	//}
 
 	if (m_pEffect)
 	{
@@ -91,19 +138,9 @@ ID3DX11Effect* Effect::GetEffect() const
 	return m_pEffect;
 }
 
-ID3DX11EffectTechnique* Effect::GetTechniquePoint() const
+ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
-	return m_pTechniquePoint;
-}
-
-ID3DX11EffectTechnique* Effect::GetTechniqueLinear() const
-{
-	return m_pTechniqueLinear;
-}
-
-ID3DX11EffectTechnique* Effect::GetTechniqueAnisotropic() const
-{
-	return m_pTechniqueAnisotropic;
+	return m_pTechnique;
 }
 
 void Effect::SetDiffuseMap(Texture* pDiffuseTexture)
@@ -117,7 +154,6 @@ ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjectionMatrix() const
 {
 	return m_pMatWorldViewProjVariable;
 }
-
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {
@@ -165,7 +201,5 @@ ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& ass
 		}
 	}
 	pErrorBlob->Release();
-
-
 	return pEffect;
 }

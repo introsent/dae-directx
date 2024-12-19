@@ -106,9 +106,9 @@ namespace dae {
 		//Create some data for our mesh
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
-
+		
 		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
-
+	
 		//const std::vector<Vertex> vertices
 		//{
 		//	{ { -3, 3, -2 }, {}, {0.f, 0.f}},

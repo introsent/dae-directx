@@ -14,6 +14,6 @@ class Texture
 
 	private:
 
-		ID3D11Texture2D* m_pResource;
-		ID3D11ShaderResourceView* m_pShaderResourceView;
+		ID3D11Texture2D* m_pResource = nullptr;
+		ID3D11ShaderResourceView* m_pShaderResourceView = nullptr;
 };

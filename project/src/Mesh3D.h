@@ -36,6 +36,18 @@ public:
 	void SetFilteringTechnique(FilteringTechnique filteringTechnique)
 	{
 		m_FilteringTechnique = filteringTechnique;
+		switch (m_FilteringTechnique)
+		{
+		case FilteringTechnique::Point:
+			m_pEffect->SetPointSampling();
+			break;
+		case FilteringTechnique::Linear:
+			m_pEffect->SetLinearSampling();
+			break;
+		case FilteringTechnique::Anisotropic:
+			m_pEffect->SetAnisotropicSampling();
+			break;
+		}
 	}
 
 	FilteringTechnique GetFilteringTechnique()
