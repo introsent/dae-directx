@@ -11,12 +11,20 @@ namespace dae
 #pragma warning(disable : 4505) //Warning unreferenced local function
 		static bool ParseOBJ(const std::string& filename, std::vector<Vertex>& vertices, std::vector<uint32_t>& indices, bool flipAxisAndWinding = true)
 		{
+#ifdef DISABLE_OBJ
+
+			//TODO: Enable the code below after uncommenting all the vertex attributes of DataTypes::Vertex
+			// >> Comment/Remove '#define DISABLE_OBJ'
+			assert(false && "OBJ PARSER not enabled! Check the comments in Utils::ParseOBJ");
+
+#else
+
 			std::ifstream file(filename);
 			if (!file)
 				return false;
 
 			std::vector<Vector3> positions{};
-			//std::vector<Vector3> normals{};
+			std::vector<Vector3> normals{};
 			std::vector<Vector2> UVs{};
 
 			vertices.clear();
@@ -50,11 +58,11 @@ namespace dae
 				}
 				else if (sCommand == "vn")
 				{
-				//	// Vertex Normal
-				//	float x, y, z;
-				//	file >> x >> y >> z;
-				//
-				//	normals.emplace_back(x, y, z);
+					// Vertex Normal
+					float x, y, z;
+					file >> x >> y >> z;
+
+					normals.emplace_back(x, y, z);
 				}
 				else if (sCommand == "f")
 				{
@@ -91,17 +99,17 @@ namespace dae
 
 								// Optional vertex normal
 								file >> iNormal;
-								//vertex.normal = normals[iNormal - 1];
+								vertex.normal = normals[iNormal - 1];
 							}
 						}
 
 						vertices.push_back(vertex);
 						tempIndices[iFace] = uint32_t(vertices.size()) - 1;
-						indices.push_back(uint32_t(vertices.size()) - 1);
+						//indices.push_back(uint32_t(vertices.size()) - 1);
 					}
 
 					indices.push_back(tempIndices[0]);
-					if (flipAxisAndWinding) 
+					if (flipAxisAndWinding)
 					{
 						indices.push_back(tempIndices[2]);
 						indices.push_back(tempIndices[1]);
@@ -117,7 +125,7 @@ namespace dae
 			}
 
 			//Cheap Tangent Calculations
-			/*for (uint32_t i = 0; i < indices.size(); i += 3)
+			for (uint32_t i = 0; i < indices.size(); i += 3)
 			{
 				uint32_t index0 = indices[i];
 				uint32_t index1 = indices[size_t(i) + 1];
@@ -141,14 +149,13 @@ namespace dae
 				vertices[index1].tangent += tangent;
 				vertices[index2].tangent += tangent;
 			}
-			*/
-			//Create the Tangents (reject)
-			/*
+
+			//Fix the tangents per vertex now because we accumulated
 			for (auto& v : vertices)
 			{
 				v.tangent = Vector3::Reject(v.tangent, v.normal).Normalized();
 
-				if(flipAxisAndWinding)
+				if (flipAxisAndWinding)
 				{
 					v.position.z *= -1.f;
 					v.normal.z *= -1.f;
@@ -156,8 +163,9 @@ namespace dae
 				}
 
 			}
-			*/
+
 			return true;
+#endif
 		}
 #pragma warning(pop)
 	}

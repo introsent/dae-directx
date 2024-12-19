@@ -60,7 +60,11 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 		std::wcout << L"Anisotropic Sampling state not valid\n";
 	}
 
-	m_EffectSamplerVariable->SetSampler(0, m_pSamplerPoint);
+	if (m_pSamplerPoint != nullptr)
+	{ 
+		m_EffectSamplerVariable->SetSampler(0, m_pSamplerPoint);
+	}
+	
 
 	m_pTechnique = m_pEffect->GetTechniqueByName("DefaultTechnique");
 	if (!m_pTechnique->IsValid())
@@ -74,34 +78,98 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
 		std::wcout << L"m_pMatWorldViewProjVariable not valid\n";
 	}
 
+	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
+	if (!m_pMatWorldVariable->IsValid())
+	{
+		std::wcout << L"m_pMatWorldVariable not valid\n";
+	}
+
+	m_pVecCameraVariable = m_pEffect->GetVariableByName("gCameraPosition")->AsVector();
+	if (!m_pVecCameraVariable->IsValid())
+	{
+		std::wcout << L"m_pVecCameraVariable not valid\n";
+	}
+
 	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
 	if (!m_pDiffuseMapVariable->IsValid())
 	{
 		std::wcout << L"m_pDiffuseMapVariable not valid!\n";
 	}
+
+	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
+	if (!m_pNormalMapVariable->IsValid())
+	{
+		std::wcout << L"m_pNormalMapVariable not valid!\n";
+	}
+
+	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
+	if (!m_pSpecularMapVariable->IsValid())
+	{
+		std::wcout << L"m_pSpecularMapVariable not valid!\n";
+	}
+
+	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
+	if (!m_pGlossinessMapVariable->IsValid())
+	{
+		std::wcout << L"m_pGlossinessMapVariable not valid!\n";
+	}
 }
 
 Effect::~Effect()
 {
+	//Release maps
+	if (m_pGlossinessMapVariable)
+	{
+		m_pGlossinessMapVariable->Release();
+		m_pGlossinessMapVariable = nullptr;
+	}
+
+	if (m_pSpecularMapVariable)
+	{
+		m_pSpecularMapVariable->Release();
+		m_pSpecularMapVariable = nullptr;
+	}
+
+	if (m_pNormalMapVariable)
+	{
+		m_pNormalMapVariable->Release();
+		m_pNormalMapVariable = nullptr;
+	}
+
 	if (m_pDiffuseMapVariable)
 	{
 		m_pDiffuseMapVariable->Release();
 		m_pDiffuseMapVariable = nullptr;
 	}
+
+	//Release vectors
+	if (m_pVecCameraVariable)
+	{
+		m_pVecCameraVariable->Release();
+		m_pVecCameraVariable = nullptr;
+	}
 	
-	
+	//Release matrices
 	if (m_pMatWorldViewProjVariable)
 	{
 		m_pMatWorldViewProjVariable->Release();
 		m_pMatWorldViewProjVariable = nullptr;
 	}
 
+	if (m_pMatWorldVariable)
+	{
+		m_pMatWorldVariable->Release();
+		m_pMatWorldVariable = nullptr;
+	}
+
+	//Release techniques
 	if (m_pTechnique)
 	{
 		m_pTechnique->Release();
 		m_pTechnique = nullptr;
 	}
-	
+
+	//Release samplers
 	if (m_pSamplerAnisotropic)
 	{
 		m_pSamplerAnisotropic->Release();
@@ -126,6 +194,7 @@ Effect::~Effect()
 		m_EffectSamplerVariable = nullptr;
 	}
 
+	//Release Effect
 	if (m_pEffect)
 	{
 		m_pEffect->Release();
@@ -150,9 +219,40 @@ void Effect::SetDiffuseMap(Texture* pDiffuseTexture)
 	}
 }
 
+void Effect::SetNormalMap(Texture* pNormalTexture)
+{
+	if (m_pNormalMapVariable) {
+		m_pNormalMapVariable->SetResource(pNormalTexture->GetShaderResourceView());
+	}
+}
+
+void Effect::SetGlossinessMap(Texture* pGlossinessTexture)
+{
+	if (m_pGlossinessMapVariable) {
+		m_pGlossinessMapVariable->SetResource(pGlossinessTexture->GetShaderResourceView());
+	}
+}
+
+void Effect::SetSpecularMap(Texture* pSpecularTexture)
+{
+	if (m_pSpecularMapVariable) {
+		m_pSpecularMapVariable->SetResource(pSpecularTexture->GetShaderResourceView());
+	}
+}
+
+ID3DX11EffectVectorVariable* Effect::GetCameraPosition() const
+{
+	return m_pVecCameraVariable;
+}
+
 ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjectionMatrix() const
 {
 	return m_pMatWorldViewProjVariable;
+}
+
+ID3DX11EffectMatrixVariable* Effect::GetWorldMatrix() const
+{
+	return m_pMatWorldVariable;
 }
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)

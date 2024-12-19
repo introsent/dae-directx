@@ -9,8 +9,9 @@ using namespace dae;
 struct Vertex
 {
 	Vector3 position;
-	ColorRGB color;
 	Vector2 uv;
+	Vector3 normal; 
+	Vector3 tangent; 
 };
 
 class Mesh3D final
@@ -24,7 +25,7 @@ public:
 	Mesh3D(Mesh3D&& other) = delete;
 	Mesh3D& operator=(Mesh3D&& rhs) = delete;
 
-	void Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const;
+	void Render(const Vector3& cameraPosition, const Matrix& pWorldMatrix, const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const;
 
 	enum FilteringTechnique
 	{

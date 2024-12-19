@@ -44,8 +44,14 @@ public:
 	}
 
 	void SetDiffuseMap(Texture* pDiffuseTexture);
+	void SetNormalMap(Texture* pNormalTexture);
+	void SetGlossinessMap(Texture* pGlossinessTexture);
+	void SetSpecularMap(Texture* pSpecularTexture);
 
+
+	ID3DX11EffectVectorVariable* GetCameraPosition() const;
 	ID3DX11EffectMatrixVariable* GetWorldViewProjectionMatrix() const;
+	ID3DX11EffectMatrixVariable* GetWorldMatrix() const;
 private:
 	ID3DX11Effect* m_pEffect;
 
@@ -57,7 +63,14 @@ private:
 	ID3DX11EffectTechnique* m_pTechnique;
 
 	ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable;
+	ID3DX11EffectMatrixVariable* m_pMatWorldVariable;
+
+	ID3DX11EffectVectorVariable* m_pVecCameraVariable;
+
 	ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
+	ID3DX11EffectShaderResourceVariable* m_pNormalMapVariable;
+	ID3DX11EffectShaderResourceVariable* m_pSpecularMapVariable;
+	ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVariable;
 
 	static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
 

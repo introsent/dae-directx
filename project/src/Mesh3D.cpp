@@ -8,7 +8,7 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 	m_pEffect = new Effect{ pDevice, L"resources/PosCol3D.fx" };
 
 	//1. Create Vertex Layout
-	static constexpr uint32_t numElements{ 3 };
+	static constexpr uint32_t numElements{ 4 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
 
 	vertexDesc[0].SemanticName = "POSITION";
@@ -16,16 +16,20 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 	vertexDesc[0].AlignedByteOffset = 0;
 	vertexDesc[0].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
-	vertexDesc[1].SemanticName = "COLOR";
-	vertexDesc[1].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[1].SemanticName = "TEXCOORD";
+	vertexDesc[1].Format = DXGI_FORMAT_R32G32_FLOAT;
 	vertexDesc[1].AlignedByteOffset = 12;
 	vertexDesc[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
-	vertexDesc[2].SemanticName = "TEXCOORD";
-	vertexDesc[2].Format = DXGI_FORMAT_R32G32_FLOAT;
-	vertexDesc[2].AlignedByteOffset = 24;
+	vertexDesc[2].SemanticName = "NORMAL";
+	vertexDesc[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[2].AlignedByteOffset = 20;
 	vertexDesc[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
+	vertexDesc[3].SemanticName = "TANGENT";
+	vertexDesc[3].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	vertexDesc[3].AlignedByteOffset = 32;
+	vertexDesc[3].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 
 	//2. Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
@@ -65,8 +69,18 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 	result = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
 
-	std::unique_ptr<Texture> pTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_diffuse.png");
-	m_pEffect->SetDiffuseMap(pTexture.get());
+	std::unique_ptr<Texture> pDiffuseTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_diffuse.png");
+	m_pEffect->SetDiffuseMap(pDiffuseTexture.get());
+
+	std::unique_ptr<Texture> pNormalTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_normal.png");
+	m_pEffect->SetNormalMap(pNormalTexture.get());
+
+	std::unique_ptr<Texture> pSpecularTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_specular.png");
+	m_pEffect->SetSpecularMap(pSpecularTexture.get());
+
+	std::unique_ptr<Texture> pGlossinessTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_gloss.png");
+	m_pEffect->SetGlossinessMap(pGlossinessTexture.get());
+
 }
 
 Mesh3D::~Mesh3D()
@@ -92,7 +106,7 @@ Mesh3D::~Mesh3D()
 	}
 }
 
-void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const
+void Mesh3D::Render(const Vector3& cameraPosition, const Matrix& pWorldMatrix, const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContext* pDeviceContext) const
 {	
 	//1. Set primitive topology
 	pDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -109,6 +123,8 @@ void Mesh3D::Render(const Matrix& pWorldViewProjectionMatrix, ID3D11DeviceContex
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	//5. Set World View Projection Matrix
+	m_pEffect->GetCameraPosition()->SetFloatVector(reinterpret_cast<const float*>(&cameraPosition));
+	m_pEffect->GetWorldMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldMatrix));
 	m_pEffect->GetWorldViewProjectionMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldViewProjectionMatrix));
 
 	//6. Draw
