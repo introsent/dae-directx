@@ -49,7 +49,7 @@ namespace dae {
 	void Renderer::Update(const Timer* pTimer)
 	{
 		m_pCamera.get()->Update(pTimer);
-		m_WorldMatrix = Matrix::CreateRotationY(pTimer->GetTotal() * PI / 2) * m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix();
+		m_WorldMatrix = Matrix::CreateRotationY(pTimer->GetTotal() * PI / 2);
 	}
 
 	void Renderer::Render() const
@@ -63,7 +63,7 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. Set pipeline + invoke draw calls (= RENDER)
-		m_pMesh.get()->Render(m_WorldMatrix, m_pDeviceContext);
+		m_pMesh.get()->Render(m_WorldMatrix * m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
 
 		//3. Present backbuffer (SWAP)
 		m_pSwapChain->Present(0, 0);
