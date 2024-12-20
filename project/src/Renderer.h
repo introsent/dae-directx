@@ -23,6 +23,12 @@ namespace dae
 		void CleanupDirectX();
 		void Render() const;
 
+		enum FilteringTechnique
+		{
+			Point,
+			Linear,
+			Anisotropic
+		};
 		void ChangeFilteringTechnique();
 
 	private:
@@ -51,6 +57,11 @@ namespace dae
 		Matrix m_WorldMatrix{};
 		std::unique_ptr<Mesh3D> m_pMesh;
 		std::unique_ptr<Camera> m_pCamera;
-		void InitializeMesh();
+		FilteringTechnique m_FilteringTechnique{ FilteringTechnique::Anisotropic };
+
+		std::unique_ptr<VehicleEffect> m_pVehicleEffect;
+		//std::unique_ptr<FireEffect> m_pFireEffect;
+
+		void InitializeVehicle();
 	};
 }

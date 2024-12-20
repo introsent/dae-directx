@@ -17,7 +17,9 @@ namespace dae {
 		if (result == S_OK)
 		{
 			m_IsInitialized = true;
-			InitializeMesh();
+			m_pVehicleEffect = std::make_unique<VehicleEffect>(m_pDevice, L"resources/PosCol3D.fx");
+			InitializeVehicle();
+
 			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -50.f }, 45.f, float(m_Width), float(m_Height));
 			std::cout << "DirectX is initialized and ready!\n";
 		}
@@ -30,8 +32,6 @@ namespace dae {
 	Renderer::~Renderer()
 	{
 		CleanupDirectX();
-
-
 	}
 
 
@@ -60,20 +60,19 @@ namespace dae {
 
 	void Renderer::ChangeFilteringTechnique()
 	{
-		switch (m_pMesh->GetFilteringTechnique())
+		switch (m_FilteringTechnique)
 		{
-		
-		case Mesh3D::FilteringTechnique::Point:
-			std::cout << "FILTERING TECHNIQUE: Linear" << std::endl;
-			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Linear);
+		case FilteringTechnique::Point:
+			m_pVehicleEffect->SetPointSampling();
+			m_FilteringTechnique = FilteringTechnique::Linear;
 			break;
-		case Mesh3D::FilteringTechnique::Linear:
-			std::cout << "FILTERING TECHNIQUE: Anisotropic" << std::endl;
-			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Anisotropic);
+		case FilteringTechnique::Linear:
+			m_pVehicleEffect->SetLinearSampling();
+			m_FilteringTechnique = FilteringTechnique::Anisotropic;
 			break;
-		case Mesh3D::FilteringTechnique::Anisotropic:
-			std::cout << "FILTERING TECHNIQUE: Point" << std::endl;
-			m_pMesh->SetFilteringTechnique(Mesh3D::FilteringTechnique::Point);
+		case FilteringTechnique::Anisotropic:
+			m_pVehicleEffect->SetAnisotropicSampling();
+			m_FilteringTechnique = FilteringTechnique::Point;
 			break;
 		}
 	}
@@ -87,17 +86,16 @@ namespace dae {
 		InitializeDirectX();
 
 		// Recreate resources
-		InitializeMesh();
+		InitializeVehicle();
 	}
 	
-	void Renderer::InitializeMesh()
+	void Renderer::InitializeVehicle()
 	{
 		//Create some data for our mesh
 		std::vector<Vertex> vertices;
 		std::vector<uint32_t> indices;
 		
 		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
-	
 		//const std::vector<Vertex> vertices
 		//{
 		//	{ { -3, 3, -2 }, {}, {0.f, 0.f}},
@@ -114,7 +112,7 @@ namespace dae {
 		//									 2, 5, 4,   6, 3, 4,   4, 7, 6,
 		//									 7, 4, 5,   5, 8, 7 };
 
-		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices);
+		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices, m_pVehicleEffect.get());
 	}
 
 

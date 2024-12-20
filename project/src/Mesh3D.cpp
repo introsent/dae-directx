@@ -3,10 +3,8 @@
 #include "Texture.h"
 #include <memory.h>
 
-Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices)
+Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const std::vector<uint32_t>& indices, Effect* pEffect) : m_pEffect(pEffect)
 {
-	m_pVehicleEffect = new VehicleEffect{ pDevice, L"resources/PosCol3D.fx" };
-
 	//1. Create Vertex Layout
 	static constexpr uint32_t numElements{ 4 };
 	D3D11_INPUT_ELEMENT_DESC vertexDesc[numElements]{};
@@ -33,7 +31,7 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 
 	//2. Create Input Layout
 	D3DX11_PASS_DESC passDesc{};
-	m_pVehicleEffect->GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc);
+	m_pEffect->GetTechnique()->GetPassByIndex(0)->GetDesc(&passDesc);
 	HRESULT result{ pDevice->CreateInputLayout
 		(
 			vertexDesc,
@@ -72,8 +70,6 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 
 Mesh3D::~Mesh3D()
 {
-	delete m_pVehicleEffect;
-
 	if (m_pIndexBuffer)
 	{
 		m_pIndexBuffer->Release();
@@ -110,16 +106,16 @@ void Mesh3D::Render(const Vector3& cameraPosition, const Matrix& pWorldMatrix, c
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	//5. Set World View Projection Matrix
-	m_pVehicleEffect->GetCameraPosition()->SetFloatVector(reinterpret_cast<const float*>(&cameraPosition));
-	m_pVehicleEffect->GetWorldMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldMatrix));
-	m_pVehicleEffect->GetWorldViewProjectionMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldViewProjectionMatrix));
+	m_pEffect->GetCameraPosition()->SetFloatVector(reinterpret_cast<const float*>(&cameraPosition));
+	m_pEffect->GetWorldMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldMatrix));
+	m_pEffect->GetWorldViewProjectionMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldViewProjectionMatrix));
 
 	//6. Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};
-	m_pVehicleEffect->GetTechnique()->GetDesc(&techniqueDesc);
+	m_pEffect->GetTechnique()->GetDesc(&techniqueDesc);
 	for (UINT p{}; p < techniqueDesc.Passes; ++p)
 	{
-		auto passIndexPoint = m_pVehicleEffect->GetTechnique()->GetPassByIndex(p);
+		auto passIndexPoint = m_pEffect->GetTechnique()->GetPassByIndex(p);
 		passIndexPoint->Apply(0, pDeviceContext);
 		pDeviceContext->DrawIndexed(m_NumIndices, 0, 0);
 		if (passIndexPoint) passIndexPoint->Release();
