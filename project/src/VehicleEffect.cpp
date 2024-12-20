@@ -114,13 +114,6 @@ VehicleEffect::~VehicleEffect()
 		m_pDiffuseMapVariable = nullptr;
 	}
 
-	//Release techniques
-	if (m_pTechnique)
-	{
-		m_pTechnique->Release();
-		m_pTechnique = nullptr;
-	}
-
 	//Release samplers
 	if (m_pSamplerAnisotropic)
 	{

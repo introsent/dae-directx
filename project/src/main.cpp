@@ -9,17 +9,23 @@
 
 using namespace dae;
 
+//ID3D11Debug* d3d11Debug;
+
 void ShutDown(SDL_Window* pWindow)
 {
+	//d3d11Debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
+	//
+	//if (d3d11Debug)
+	//{
+	//	d3d11Debug->Release();
+	//	d3d11Debug = nullptr;
+	//}
+
 	SDL_DestroyWindow(pWindow);
 	SDL_Quit();
-
-
-
-
 }
 
-ID3D11Debug* d3d11Debug;
+
 
 
 int main(int argc, char* args[])
@@ -93,13 +99,7 @@ int main(int argc, char* args[])
 	//Shutdown "framework"
 	delete pRenderer;
 
-	d3d11Debug->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL | D3D11_RLDO_IGNORE_INTERNAL);
-
-	if (d3d11Debug)
-	{
-		d3d11Debug->Release();
-		d3d11Debug = nullptr;
-	}
+	
 
 	delete pTimer;
 

@@ -3,7 +3,7 @@
 #include "Mesh3D.h"
 #include "Utils.h"
 
-extern ID3D11Debug* d3d11Debug;
+//extern ID3D11Debug* d3d11Debug;
 namespace dae {
 
 	Renderer::Renderer(SDL_Window* pWindow) :
@@ -17,11 +17,8 @@ namespace dae {
 		if (result == S_OK)
 		{
 			m_IsInitialized = true;
-			
 			InitializeMesh();
 			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -50.f }, 45.f, float(m_Width), float(m_Height));
-			
-
 			std::cout << "DirectX is initialized and ready!\n";
 		}
 		else
@@ -34,14 +31,6 @@ namespace dae {
 	{
 		CleanupDirectX();
 
-		//delete  m_pMesh;
-		delete	m_pDevice;
-		delete	m_pDeviceContext;
-		delete	m_pSwapChain;
-		delete	m_pDepthStencilBuffer;
-		delete	m_pDepthStencilView;
-		delete	m_pRenderTargetBuffer;
-		delete	m_pRenderTargetView;
 
 	}
 
@@ -142,7 +131,7 @@ namespace dae {
 		HRESULT result = D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, 0, createDeviceFlags, &featureLevel,
 						1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &m_pDeviceContext);
 		if (FAILED(result)) return result;
-		m_pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3d11Debug));
+//		m_pDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&d3d11Debug));
 
 		//Create DXGI Factory
 		IDXGIFactory1* pDxgiFactory{};
@@ -239,14 +228,6 @@ namespace dae {
 	void Renderer::CleanupDirectX()
 	{
 		// Clear state and flush the device context before releasing DeviceContext
-		//if (m_pDeviceContext)
-		//{
-		//	
-		//}
-
-		// Release the resources in reverse order of creation
-		
-
 		if (m_pDepthStencilView)
 		{
 			m_pDepthStencilView->Release();

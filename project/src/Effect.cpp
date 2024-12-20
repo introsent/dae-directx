@@ -54,6 +54,14 @@ Effect::~Effect()
         m_pMatWorldVariable = nullptr;
     }
 
+    //Release techniques
+    if (m_pTechnique)
+    {
+        m_pTechnique->Release();
+        m_pTechnique = nullptr;
+    }
+
+    //Release Effect
     if (m_pEffect)
     {
         m_pEffect->Release();
