@@ -61,26 +61,48 @@ VehicleEffect::VehicleEffect(ID3D11Device* pDevice, const std::wstring& assetFil
 		m_EffectSamplerVariable->SetSampler(0, m_pSamplerPoint);
 	}
 
+
+	std::unique_ptr<Texture> pDiffuseTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_diffuse.png");
 	m_pDiffuseMapVariable = m_pEffect->GetVariableByName("gDiffuseMap")->AsShaderResource();
-	if (!m_pDiffuseMapVariable->IsValid())
+	if (m_pDiffuseMapVariable->IsValid()) {
+		m_pDiffuseMapVariable->SetResource(pDiffuseTexture.get()->GetShaderResourceView());
+	}
+	else
 	{
 		std::wcout << L"m_pDiffuseMapVariable not valid!\n";
 	}
 
+	std::unique_ptr<Texture> pNormalTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_normal.png");
 	m_pNormalMapVariable = m_pEffect->GetVariableByName("gNormalMap")->AsShaderResource();
-	if (!m_pNormalMapVariable->IsValid())
+	if (m_pNormalMapVariable->IsValid())
+	{
+		m_pNormalMapVariable->SetResource(pNormalTexture.get()->GetShaderResourceView());
+	}
+	else
 	{
 		std::wcout << L"m_pNormalMapVariable not valid!\n";
 	}
 
+	std::unique_ptr<Texture> pSpecularTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_specular.png");
 	m_pSpecularMapVariable = m_pEffect->GetVariableByName("gSpecularMap")->AsShaderResource();
-	if (!m_pSpecularMapVariable->IsValid())
+	if (m_pSpecularMapVariable->IsValid())
+	{
+		m_pSpecularMapVariable->SetResource(pSpecularTexture.get()->GetShaderResourceView());
+		
+	}
+	else
 	{
 		std::wcout << L"m_pSpecularMapVariable not valid!\n";
 	}
 
+
+	std::unique_ptr<Texture> pGlossinessTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_gloss.png");
 	m_pGlossinessMapVariable = m_pEffect->GetVariableByName("gGlossinessMap")->AsShaderResource();
-	if (!m_pGlossinessMapVariable->IsValid())
+	if (m_pGlossinessMapVariable->IsValid())
+	{
+		m_pGlossinessMapVariable->SetResource(pGlossinessTexture.get()->GetShaderResourceView());
+	}
+	else
 	{
 		std::wcout << L"m_pGlossinessMapVariable not valid!\n";
 	}
@@ -164,33 +186,5 @@ void VehicleEffect::SetAnisotropicSampling()
 	if (SUCCEEDED(hr))
 	{
 		printf("Sampler state set to Anisotropic.\n");
-	}
-}
-
-void VehicleEffect::SetDiffuseMap(Texture* pDiffuseTexture)
-{
-	if (m_pDiffuseMapVariable) {
-		m_pDiffuseMapVariable->SetResource(pDiffuseTexture->GetShaderResourceView());
-	}
-}
-
-void VehicleEffect::SetNormalMap(Texture* pNormalTexture)
-{
-	if (m_pNormalMapVariable) {
-		m_pNormalMapVariable->SetResource(pNormalTexture->GetShaderResourceView());
-	}
-}
-
-void VehicleEffect::SetGlossinessMap(Texture* pGlossinessTexture)
-{
-	if (m_pGlossinessMapVariable) {
-		m_pGlossinessMapVariable->SetResource(pGlossinessTexture->GetShaderResourceView());
-	}
-}
-
-void VehicleEffect::SetSpecularMap(Texture* pSpecularTexture)
-{
-	if (m_pSpecularMapVariable) {
-		m_pSpecularMapVariable->SetResource(pSpecularTexture->GetShaderResourceView());
 	}
 }

@@ -16,19 +16,14 @@ public:
 	void SetLinearSampling();
     void SetAnisotropicSampling();
 
-	void SetDiffuseMap(Texture* pDiffuseTexture);
-	void SetNormalMap(Texture* pNormalTexture);
-	void SetGlossinessMap(Texture* pGlossinessTexture);
-    void SetSpecularMap(Texture* pSpecularTexture);
-
 protected:
-    ID3D11SamplerState* m_pSamplerPoint;
-    ID3D11SamplerState* m_pSamplerLinear;
-    ID3D11SamplerState* m_pSamplerAnisotropic;
-    ID3DX11EffectSamplerVariable* m_EffectSamplerVariable;
+    ID3D11SamplerState* m_pSamplerPoint{};
+    ID3D11SamplerState* m_pSamplerLinear{};
+    ID3D11SamplerState* m_pSamplerAnisotropic{};
+    ID3DX11EffectSamplerVariable* m_EffectSamplerVariable{};
 
-    ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable;
-    ID3DX11EffectShaderResourceVariable* m_pNormalMapVariable;
-    ID3DX11EffectShaderResourceVariable* m_pSpecularMapVariable;
-    ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVariable;
+    ID3DX11EffectShaderResourceVariable* m_pDiffuseMapVariable{};
+    ID3DX11EffectShaderResourceVariable* m_pNormalMapVariable{};
+    ID3DX11EffectShaderResourceVariable* m_pSpecularMapVariable{};
+    ID3DX11EffectShaderResourceVariable* m_pGlossinessMapVariable{};
 };

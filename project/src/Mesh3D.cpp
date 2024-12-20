@@ -68,19 +68,6 @@ Mesh3D::Mesh3D(ID3D11Device* pDevice, const std::vector<Vertex>& vertices, const
 
 	result = pDevice->CreateBuffer(&bd, &initData, &m_pIndexBuffer);
 	if (FAILED(result)) return;
-
-	std::unique_ptr<Texture> pDiffuseTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_diffuse.png");
-	m_pVehicleEffect->SetDiffuseMap(pDiffuseTexture.get());
-
-	std::unique_ptr<Texture> pNormalTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_normal.png");
-	m_pVehicleEffect->SetNormalMap(pNormalTexture.get());
-
-	std::unique_ptr<Texture> pSpecularTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_specular.png");
-	m_pVehicleEffect->SetSpecularMap(pSpecularTexture.get());
-
-	std::unique_ptr<Texture> pGlossinessTexture = Texture::LoadFromFile(pDevice, "resources/vehicle_gloss.png");
-	m_pVehicleEffect->SetGlossinessMap(pGlossinessTexture.get());
-
 }
 
 Mesh3D::~Mesh3D()
