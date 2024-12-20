@@ -19,7 +19,7 @@ namespace dae {
 			m_IsInitialized = true;
 			
 			InitializeMesh();
-			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -50.f }, 45.f, m_Width, m_Height);
+			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -50.f }, 45.f, float(m_Width), float(m_Height));
 			
 
 			std::cout << "DirectX is initialized and ready!\n";

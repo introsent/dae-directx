@@ -4,6 +4,7 @@
 #include "ColorRGB.h"
 #include <vector>
 #include "Effect.h"
+#include "VehicleEffect.h"
 using namespace dae;
 
 struct Vertex
@@ -40,13 +41,13 @@ public:
 		switch (m_FilteringTechnique)
 		{
 		case FilteringTechnique::Point:
-			m_pEffect->SetPointSampling();
+			m_pVehicleEffect->SetPointSampling();
 			break;
 		case FilteringTechnique::Linear:
-			m_pEffect->SetLinearSampling();
+			m_pVehicleEffect->SetLinearSampling();
 			break;
 		case FilteringTechnique::Anisotropic:
-			m_pEffect->SetAnisotropicSampling();
+			m_pVehicleEffect->SetAnisotropicSampling();
 			break;
 		}
 	}
@@ -59,7 +60,7 @@ public:
 	
 private:
 	uint32_t				m_NumIndices{};
-	Effect*					m_pEffect;
+	VehicleEffect*			m_pVehicleEffect;
 	FilteringTechnique      m_FilteringTechnique{ FilteringTechnique::Point };
 
 	ID3D11Buffer*			m_pVertexBuffer{};
