@@ -26,6 +26,49 @@ float gPI = 3.14159265358979323846f;
 //Sampler state
 SamplerState gSamplerState : register(s0);
 
+//Update states
+RasterizerState gRasterizerState
+{
+    CullMode = back;
+    FrontCounterClockwise = false;
+};
+
+
+BlendState gBlendState
+{
+    BlendEnable[0] = true;
+    SrcBlend = src_alpha;
+    DestBlend = inv_src_alpha;
+    BlendOp = add;
+    SrcBlendAlpha = zero;
+    DestBlendAlpha = zero;
+    BlendOpAlpha = add;
+    RenderTargetWriteMask[0] = 0x0F;
+};
+
+DepthStencilState gDepthStencilState
+{
+    DepthEnable = true;
+    DepthWriteMask = true;
+    DepthFunc = less;
+    StencilEnable = false;
+    
+    StencilReadMask = 0x0F;
+    StencilWriteMask = 0x0F;
+    
+    FrontFaceStencilFunc = always;
+    BackFaceStencilFunc = always;
+
+    FrontFaceStencilDepthFail = keep;
+    BackFaceStencilDepthFail = keep;
+    
+    FrontFaceStencilPass = keep;
+    BackFaceStencilPass = keep;
+    
+    FrontFaceStencilFail = keep;
+    BackFaceStencilFail = keep;
+};
+
 
 //------------------------------------------------
 // Input/Output Struct
@@ -126,6 +169,9 @@ technique11 DefaultTechnique
 {
 	pass P0
 	{
+        SetRasterizerState(gRasterizerState);
+        SetDepthStencilState(gDepthStencilState, 0);
+        SetBlendState(gBlendState, float4(0.f, 0.f, 0.f, 0.f), 0xFFFFFFFF);
 		SetVertexShader(CompileShader(vs_5_0, VS()));
 		SetGeometryShader(NULL);
 		SetPixelShader(CompileShader(ps_5_0, PS()));

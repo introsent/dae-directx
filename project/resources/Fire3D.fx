@@ -43,6 +43,9 @@ DepthStencilState gDepthStencilState
     
     FrontFaceStencilFunc = always;
     BackFaceStencilFunc = always;
+
+    FrontFaceStencilDepthFail = keep;
+    BackFaceStencilDepthFail = keep;
     
     FrontFaceStencilPass = keep;
     BackFaceStencilPass = keep;
