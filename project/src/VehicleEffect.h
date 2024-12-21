@@ -1,7 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Effect.h"
-class VehicleEffect : public Effect
+class VehicleEffect final : public Effect
 {
 public:
     VehicleEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
@@ -16,7 +16,12 @@ public:
 	void SetLinearSampling();
     void SetAnisotropicSampling();
 
+    void Update(const Vector3& cameraPosition, const Matrix& pWorldMatrix, const Matrix& pWorldViewProjectionMatrix) override;
+
 protected:
+    ID3DX11EffectMatrixVariable* m_pMatWorldVariable;
+    ID3DX11EffectVectorVariable* m_pVecCameraVariable;
+
     ID3D11SamplerState* m_pSamplerPoint{};
     ID3D11SamplerState* m_pSamplerLinear{};
     ID3D11SamplerState* m_pSamplerAnisotropic{};

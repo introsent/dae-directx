@@ -18,40 +18,15 @@ Effect::Effect(ID3D11Device* pDevice, const std::wstring& assetFile)
     {
         std::wcout << L"m_pMatWorldViewProjVariable not valid\n";
     }
-
-    m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
-    if (!m_pMatWorldVariable->IsValid())
-    {
-        std::wcout << L"m_pMatWorldVariable not valid\n";
-    }
-
-    m_pVecCameraVariable = m_pEffect->GetVariableByName("gCameraPosition")->AsVector();
-    if (!m_pVecCameraVariable->IsValid())
-    {
-        std::wcout << L"m_pVecCameraVariable not valid\n";
-    }
 }
 
 Effect::~Effect()
 {
-    //Release vectors
-    if (m_pVecCameraVariable)
-    {
-        m_pVecCameraVariable->Release();
-        m_pVecCameraVariable = nullptr;
-    }
-
     //Release matrices
     if (m_pMatWorldViewProjVariable)
     {
         m_pMatWorldViewProjVariable->Release();
         m_pMatWorldViewProjVariable = nullptr;
-    }
-
-    if (m_pMatWorldVariable)
-    {
-        m_pMatWorldVariable->Release();
-        m_pMatWorldVariable = nullptr;
     }
 
     //Release techniques
@@ -74,25 +49,21 @@ ID3DX11Effect* Effect::GetEffect() const
     return m_pEffect;
 }
 
-ID3DX11EffectVectorVariable* Effect::GetCameraPosition() const
-{
-    return m_pVecCameraVariable;
-}
-
 ID3DX11EffectMatrixVariable* Effect::GetWorldViewProjectionMatrix() const
 {
     return m_pMatWorldViewProjVariable;
-}
-
-ID3DX11EffectMatrixVariable* Effect::GetWorldMatrix() const
-{
-    return m_pMatWorldVariable;
 }
 
 ID3DX11EffectTechnique* Effect::GetTechnique() const
 {
     return m_pTechnique;
 }
+
+void Effect::Update(const Vector3& cameraPosition, const Matrix& pWorldMatrix, const Matrix& pWorldViewProjectionMatrix)
+{
+    m_pMatWorldViewProjVariable->SetMatrix(reinterpret_cast<const float*>(&pWorldViewProjectionMatrix));
+}
+
 
 ID3DX11Effect* Effect::LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile)
 {

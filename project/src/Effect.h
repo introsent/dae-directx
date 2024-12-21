@@ -1,6 +1,7 @@
 #pragma once
 #include "pch.h"
 #include "Texture.h"
+using namespace dae;
 
 class Effect
 {
@@ -15,20 +16,17 @@ public:
 
     ID3DX11Effect* GetEffect() const;
 
-    ID3DX11EffectVectorVariable* GetCameraPosition() const;
     ID3DX11EffectMatrixVariable* GetWorldViewProjectionMatrix() const;
-    ID3DX11EffectMatrixVariable* GetWorldMatrix() const;
-
 
     ID3DX11EffectTechnique* GetTechnique() const;
+
+    virtual void Update(const Vector3& cameraPosition, const Matrix& pWorldMatrix, const Matrix& pWorldViewProjectionMatrix);
 
 protected:
     ID3DX11Effect* m_pEffect;
     ID3DX11EffectTechnique* m_pTechnique;
 
     ID3DX11EffectMatrixVariable* m_pMatWorldViewProjVariable;
-    ID3DX11EffectMatrixVariable* m_pMatWorldVariable;
-    ID3DX11EffectVectorVariable* m_pVecCameraVariable;
 
     static ID3DX11Effect* LoadEffect(ID3D11Device* pDevice, const std::wstring& assetFile);
 };

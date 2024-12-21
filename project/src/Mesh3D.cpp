@@ -106,9 +106,7 @@ void Mesh3D::Render(const Vector3& cameraPosition, const Matrix& pWorldMatrix, c
 	pDeviceContext->IASetIndexBuffer(m_pIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 	//5. Set World View Projection Matrix
-	m_pEffect->GetCameraPosition()->SetFloatVector(reinterpret_cast<const float*>(&cameraPosition));
-	m_pEffect->GetWorldMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldMatrix));
-	m_pEffect->GetWorldViewProjectionMatrix()->SetMatrix(reinterpret_cast<const float*>(&pWorldViewProjectionMatrix));
+	m_pEffect->Update(cameraPosition, pWorldMatrix, pWorldViewProjectionMatrix);
 
 	//6. Draw
 	D3DX11_TECHNIQUE_DESC techniqueDesc{};

@@ -63,15 +63,15 @@ namespace dae {
 		switch (m_FilteringTechnique)
 		{
 		case FilteringTechnique::Point:
-			m_pVehicleEffect->SetPointSampling();
+			m_pVehicleEffect->SetLinearSampling();
 			m_FilteringTechnique = FilteringTechnique::Linear;
 			break;
 		case FilteringTechnique::Linear:
-			m_pVehicleEffect->SetLinearSampling();
+			m_pVehicleEffect->SetAnisotropicSampling();
 			m_FilteringTechnique = FilteringTechnique::Anisotropic;
 			break;
 		case FilteringTechnique::Anisotropic:
-			m_pVehicleEffect->SetAnisotropicSampling();
+			m_pVehicleEffect->SetPointSampling();
 			m_FilteringTechnique = FilteringTechnique::Point;
 			break;
 		}

@@ -3,12 +3,28 @@
 
 VehicleEffect::VehicleEffect(ID3D11Device* pDevice, const std::wstring& assetFile) : Effect(pDevice, assetFile)
 {
+	//World matrix
+	m_pMatWorldVariable = m_pEffect->GetVariableByName("gWorldMatrix")->AsMatrix();
+	if (!m_pMatWorldVariable->IsValid())
+	{
+		std::wcout << L"m_pMatWorldVariable not valid\n";
+	}
+
+	//Camera
+	m_pVecCameraVariable = m_pEffect->GetVariableByName("gCameraPosition")->AsVector();
+	if (!m_pVecCameraVariable->IsValid())
+	{
+		std::wcout << L"m_pVecCameraVariable not valid\n";
+	}
+
+	//Effect sampler
 	m_EffectSamplerVariable = m_pEffect->GetVariableByName("gSamplerState")->AsSampler();
 	if (!m_EffectSamplerVariable->IsValid())
 	{
 		std::wcout << L"Effect sampler veriable is not valid\n";
 		return;
 	}
+
 
 	// Point sampler
 	D3D11_SAMPLER_DESC pointDesc = {};
@@ -111,6 +127,20 @@ VehicleEffect::VehicleEffect(ID3D11Device* pDevice, const std::wstring& assetFil
 
 VehicleEffect::~VehicleEffect()
 {
+	//Release vectors
+	if (m_pVecCameraVariable)
+	{
+		m_pVecCameraVariable->Release();
+		m_pVecCameraVariable = nullptr;
+	}
+
+	//Release matrices
+	if (m_pMatWorldVariable)
+	{
+		m_pMatWorldVariable->Release();
+		m_pMatWorldVariable = nullptr;
+	}
+
 	//Release maps
 	if (m_pGlossinessMapVariable)
 	{
@@ -187,4 +217,13 @@ void VehicleEffect::SetAnisotropicSampling()
 	{
 		printf("Sampler state set to Anisotropic.\n");
 	}
+}
+
+void VehicleEffect::Update(const Vector3& cameraPosition, const Matrix& pWorldMatrix, const Matrix& pWorldViewProjectionMatrix)
+{
+	Effect::Update(cameraPosition, pWorldMatrix, pWorldViewProjectionMatrix);
+
+	m_pVecCameraVariable->SetFloatVector(reinterpret_cast<const float*>(&cameraPosition));
+	m_pMatWorldVariable->SetMatrix(reinterpret_cast<const float*>(&pWorldMatrix));
+
 }
