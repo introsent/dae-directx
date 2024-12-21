@@ -17,8 +17,12 @@ namespace dae {
 		if (result == S_OK)
 		{
 			m_IsInitialized = true;
+
 			m_pVehicleEffect = std::make_unique<VehicleEffect>(m_pDevice, L"resources/PosCol3D.fx");
 			InitializeVehicle();
+
+			m_pFireEffect = std::make_unique<FireEffect>(m_pDevice, L"resources/Fire3D.fx");
+			InitializeFire();
 
 			m_pCamera = std::make_unique<Camera>(Vector3{ 0.f, 0.f , -50.f }, 45.f, float(m_Width), float(m_Height));
 			std::cout << "DirectX is initialized and ready!\n";
@@ -52,7 +56,8 @@ namespace dae {
 		m_pDeviceContext->ClearDepthStencilView(m_pDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
 
 		//2. Set pipeline + invoke draw calls (= RENDER)
-		m_pMesh.get()->Render(m_pCamera->origin, m_WorldMatrix, m_WorldMatrix * m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
+		m_pVehicle.get()->Render(m_pCamera->origin, m_WorldMatrix, m_WorldMatrix * m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
+		m_pFire.get()->Render(m_pCamera->origin, m_WorldMatrix, m_WorldMatrix * m_pCamera->GetViewMatrix() * m_pCamera->GetProjectionMatrix(), m_pDeviceContext);
 
 		//3. Present backbuffer (SWAP)
 		m_pSwapChain->Present(0, 0);
@@ -87,6 +92,8 @@ namespace dae {
 
 		// Recreate resources
 		InitializeVehicle();
+		InitializeFire();
+
 	}
 	
 	void Renderer::InitializeVehicle()
@@ -96,23 +103,18 @@ namespace dae {
 		std::vector<uint32_t> indices;
 		
 		Utils::ParseOBJ("resources/vehicle.obj", vertices, indices);
-		//const std::vector<Vertex> vertices
-		//{
-		//	{ { -3, 3, -2 }, {}, {0.f, 0.f}},
-		//	{	{ 0, 3, -2 }, {}, {.5f, 0.f}},
-		//	{ { 3, 3, -2 }, {}, {1.f, 0.f}},
-		//	{ { -3, 0, -2 }, {}, {0.f, .5f}},
-		//	{ { 0, 0, -2 }, {}, {.5f, .5f}},
-		//	{ { 3, 0, -2 }, {}, {1.f, .5f}},
-		//	{ { -3, -3, -2 }, {}, {0.f, 1.f}},
-		//	{ { 0, -3, -2 }, {}, {.5f, 1.f}},
-		//	{ { 3, -3, -2 }, {}, {1.f, 1.f}}
-		//};
-		//const std::vector<uint32_t> indices{ 3, 0, 1,   1, 4, 3,   4, 1, 2,
-		//									 2, 5, 4,   6, 3, 4,   4, 7, 6,
-		//									 7, 4, 5,   5, 8, 7 };
 
-		m_pMesh = std::make_unique<Mesh3D>(m_pDevice, vertices, indices, m_pVehicleEffect.get());
+		m_pVehicle = std::make_unique<Mesh3D>(m_pDevice, vertices, indices, m_pVehicleEffect.get());
+	}
+
+	void Renderer::InitializeFire()
+	{
+		std::vector<Vertex> vertices;
+		std::vector<uint32_t> indices;
+
+		Utils::ParseOBJ("resources/fireFX.obj", vertices, indices);
+
+		m_pFire = std::make_unique<Mesh3D>(m_pDevice, vertices, indices, m_pFireEffect.get());
 	}
 
 

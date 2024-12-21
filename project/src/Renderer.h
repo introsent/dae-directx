@@ -2,6 +2,7 @@
 #include <memory>
 #include "Mesh3D.h"
 #include "Camera.h"
+#include "FireEffect.h"
 
 struct SDL_Window;
 struct SDL_Surface;
@@ -55,13 +56,16 @@ namespace dae
 
 		//MESH
 		Matrix m_WorldMatrix{};
-		std::unique_ptr<Mesh3D> m_pMesh;
+		std::unique_ptr<Mesh3D> m_pVehicle;
+		std::unique_ptr<Mesh3D> m_pFire;
+
 		std::unique_ptr<Camera> m_pCamera;
 		FilteringTechnique m_FilteringTechnique{ FilteringTechnique::Anisotropic };
 
 		std::unique_ptr<VehicleEffect> m_pVehicleEffect;
-		//std::unique_ptr<FireEffect> m_pFireEffect;
+		std::unique_ptr<FireEffect> m_pFireEffect;
 
 		void InitializeVehicle();
+		void InitializeFire();
 	};
 }

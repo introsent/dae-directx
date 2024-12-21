@@ -72,9 +72,9 @@ VehicleEffect::VehicleEffect(ID3D11Device* pDevice, const std::wstring& assetFil
 		std::wcout << L"Anisotropic Sampling state not valid\n";
 	}
 
-	if (m_pSamplerPoint != nullptr)
+	if (m_pSamplerAnisotropic != nullptr)
 	{
-		m_EffectSamplerVariable->SetSampler(0, m_pSamplerPoint);
+		m_EffectSamplerVariable->SetSampler(0, m_pSamplerAnisotropic);
 	}
 
 
